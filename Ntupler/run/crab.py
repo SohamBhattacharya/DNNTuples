@@ -172,8 +172,7 @@ def createConfig(args, dataset):
     config.Data.unitsPerJob = args.units_per_job
     if args.max_units > 0:
         config.Data.totalUnits = args.max_units
-    if args.no_publication:
-        config.Data.publication = False
+    config.Data.publication = args.publication
     config.Data.outputDatasetTag = args.tag + '_' + vername
     config.Data.allowNonValidInputDataset = True
     config.Data.outLFNDirBase = args.outputdir
@@ -498,9 +497,9 @@ def main():
                         action='store_true', default=False,
                         help='Send external folder. Default: %(default)s'
                         )
-    parser.add_argument('--no-publication',
+    parser.add_argument('--publication',
                         action='store_true', default=False,
-                        help='Do not publish the output dataset. Default: %(default)s'
+                        help='Publish the output dataset. Default: %(default)s'
                         )
     parser.add_argument('--set-input-dataset',
                         action='store_true', default=False,

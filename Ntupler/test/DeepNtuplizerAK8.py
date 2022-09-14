@@ -5,8 +5,9 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
 
 options.outputFile = 'output.root'
-options.inputFiles = '/store/mc/RunIISummer20UL18MiniAODv2/QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/2550000/001CA706-28B4-B24B-A2F7-63045C2BEB7F.root'
-options.maxEvents = -1
+#options.inputFiles = '/store/mc/RunIISummer20UL18MiniAODv2/QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/2550000/001CA706-28B4-B24B-A2F7-63045C2BEB7F.root'
+options.inputFiles = '/store/mc/RunIISummer20UL18MiniAODv2/QCD_Pt_600to800_TuneCP5_13TeV_pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/00000/0AFB565C-7DAC-E048-92AF-DA84CB118DC4.root'
+#options.maxEvents = 100
 
 options.register('skipEvents', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "skip N events")
 options.register('inputDataset',
@@ -33,7 +34,7 @@ for k in globalTagMap:
 process = cms.Process("DNNFiller")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 process.options = cms.untracked.PSet(
     allowUnscheduled=cms.untracked.bool(True),

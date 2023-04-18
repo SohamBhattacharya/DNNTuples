@@ -11,7 +11,7 @@
 
 namespace deepntuples {
 
-void SVFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& cc) {
+void SVFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) {
   vtxToken_ = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
   svToken_ = cc.consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("SVs"));
 }

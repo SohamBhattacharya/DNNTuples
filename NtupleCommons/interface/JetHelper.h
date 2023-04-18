@@ -9,10 +9,24 @@
 #define NTUPLECOMMONS_INTERFACE_JETHELPER_H_
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <map>
+
+#include "Math/VectorUtil.h"
+
+#include "fastjet/contrib/AxesDefinition.hh"
+#include "fastjet/contrib/EnergyCorrelator.hh"
+#include "fastjet/contrib/MeasureDefinition.hh"
+#include "fastjet/contrib/Nsubjettiness.hh"
+#include "fastjet/contrib/SoftDrop.hh"
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/ClusterSequence.hh"
 
 namespace deepntuples {
 
@@ -47,6 +61,7 @@ public:
   const reco::GenJet* genjetWithNuSoftDrop() const { return genjetWithNuSoftDrop_; }
 
   std::pair<double, double> getCorrectedPuppiSoftDropMass(const std::vector<const pat::Jet*> &puppisubjets) const; // tmp
+  std::vector<math::XYZTLorentzVector> getLBGStransformedConstituents(double jetRescale_m0, double jetLorentzBoost_e0) const;
 
 
 private:

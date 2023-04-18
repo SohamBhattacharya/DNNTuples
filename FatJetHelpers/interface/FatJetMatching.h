@@ -63,14 +63,14 @@ public:
 
   std::pair<FatJetFlavor, const reco::GenParticle*> flavorJMAR(const pat::Jet *jet, const reco::GenParticleCollection& genParticles, double genRadius = 0.6);
 
-  std::pair<FatJetLabel, const reco::GenParticle*> flavorLabel(const pat::Jet *jet, const reco::GenParticleCollection& genParticles, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> flavorLabel(const pat::Jet *jet, const reco::GenParticleCollection& genParticles, double distR);
 
 private:
-  std::pair<FatJetLabel, const reco::GenParticle*> top_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
-  std::pair<FatJetLabel, const reco::GenParticle*> w_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
-  std::pair<FatJetLabel, const reco::GenParticle*> z_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
-  std::pair<FatJetLabel, const reco::GenParticle*> higgs_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
-  std::pair<FatJetLabel, const reco::GenParticle*> qcd_label(const pat::Jet *jet, const reco::GenParticleCollection& genParticles, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> top_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> w_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> z_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> higgs_label(const pat::Jet *jet, const reco::GenParticle *parton, double distR);
+  std::pair<FatJetLabel, std::vector<const reco::GenParticle*>> qcd_label(const pat::Jet *jet, const reco::GenParticleCollection& genParticles, double distR);
 
 
 private:

@@ -25,7 +25,7 @@ public:
   virtual ~JetInfoFiller() {}
 
   // get input parameters from the cfg file
-  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector && cc) override;
+  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) override;
 
   // read event content or event setup for each event
   virtual void readEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;

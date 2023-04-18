@@ -35,7 +35,7 @@ public:
   void setIsRead(bool read = true) { data.setIsRead(read); }
 
   // initilize the modules (read configuration and get the tokens)
-  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector && cc) {}
+  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) {}
 
   // read event content or event setup for each event
   virtual void readEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}

@@ -11,6 +11,7 @@
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
 
+#include "DeepNTuples/NtupleCommons/interface/CommonUtils.h"
 #include "DeepNTuples/NtupleCommons/interface/NtupleBase.h"
 #include "DeepNTuples/FatJetHelpers/interface/FatJetMatching.h"
 
@@ -24,7 +25,7 @@ public:
   virtual ~FatJetInfoFiller() {}
 
   // get input parameters from the cfg file
-  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector && cc) override;
+  virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) override;
 
   // read event content or event setup for each event
   virtual void readEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -44,6 +45,8 @@ private:
   bool sample_use_pythia_ = false;
   bool sample_use_herwig_ = false;
   bool sample_use_madgraph_ = false;
+  bool sample_isTopLH_ = false;
+  bool sample_isTopRH_ = false;
 
   std::string fjTagInfoName;
   std::string fjName;

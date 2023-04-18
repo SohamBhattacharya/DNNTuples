@@ -27,4 +27,8 @@ deepntuplizer = cms.EDAnalyzer('DeepNtuplizer',
                                 isHerwig      = cms.bool(False),
                                 isMadGraph    = cms.bool(False),
                                 isTrainSample = cms.untracked.bool(True),
+                                isTopLH       = cms.untracked.bool(False),
+                                isTopRH       = cms.untracked.bool(False),
+                                elMvaVariablesFile = cms.string(""),
+                                muMvaVariablesFile = cms.string(""),
                                 )

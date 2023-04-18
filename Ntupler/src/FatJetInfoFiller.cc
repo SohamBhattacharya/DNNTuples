@@ -11,7 +11,7 @@
 
 namespace deepntuples {
 
-void FatJetInfoFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& cc) {
+void FatJetInfoFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) {
   genParticlesToken_ = cc.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
   fjTagInfoName = iConfig.getParameter<std::string>("fjTagInfoName");
   useReclusteredJets_ = iConfig.getParameter<bool>("useReclusteredJets");
@@ -20,6 +20,8 @@ void FatJetInfoFiller::readConfig(const edm::ParameterSet& iConfig, edm::Consume
   sample_use_herwig_ = iConfig.getParameter<bool>("isHerwig");
   sample_use_madgraph_ = iConfig.getParameter<bool>("isMadGraph");
   isTrainSample_ = iConfig.getUntrackedParameter<bool>("isTrainSample", false);
+  sample_isTopLH_ = iConfig.getUntrackedParameter<bool>("isTopLH", false);
+  sample_isTopRH_ = iConfig.getUntrackedParameter<bool>("isTopRH", false);
   fjName = iConfig.getParameter<std::string>("jetType") + std::to_string(int(10*jetR_));
 }
 
@@ -69,6 +71,8 @@ void FatJetInfoFiller::book() {
   data.add<int>("sample_use_pythia", 0);
   data.add<int>("sample_use_herwig", 0);
   data.add<int>("sample_use_madgraph", 0);
+  data.add<int>("sample_isTopLH", 0);
+  data.add<int>("sample_isTopRH", 0);
 
   data.add<int>("sample_useReclusteredJets", useReclusteredJets_);
 
@@ -85,8 +89,28 @@ void FatJetInfoFiller::book() {
   // gen-matched particle (top/W/etc.)
   data.add<float>("fj_gen_pt", 0);
   data.add<float>("fj_gen_eta", 0);
+  data.add<float>("fj_gen_phi", 0);
   data.add<float>("fj_gen_mass", 0);
   data.add<float>("fj_gen_deltaR", 999);
+  
+  data.add<float>("fj_gen_dau1_pt", 0);
+  data.add<float>("fj_gen_dau1_eta", 0);
+  data.add<float>("fj_gen_dau1_phi", 0);
+  data.add<float>("fj_gen_dau1_mass", 0);
+  
+  data.add<float>("fj_gen_dau2_pt", 0);
+  data.add<float>("fj_gen_dau2_eta", 0);
+  data.add<float>("fj_gen_dau2_phi", 0);
+  data.add<float>("fj_gen_dau2_mass", 0);
+  
+  data.add<float>("fj_gen_dau3_pt", 0);
+  data.add<float>("fj_gen_dau3_eta", 0);
+  data.add<float>("fj_gen_dau3_phi", 0);
+  data.add<float>("fj_gen_dau3_mass", 0);
+  
+  data.add<float>("fj_gen_cosThetaStar", -2);
+  data.add<float>("fj_gen_cosThetaStar_d", -2);
+  data.add<float>("fj_gen_zl", -2);
 
   // --- jet energy/mass regression ---
   data.add<float>("fj_genjet_pt", 0);
@@ -107,7 +131,7 @@ void FatJetInfoFiller::book() {
   data.add<float>("fj_eta", 0);
   data.add<float>("fj_phi", 0);
   data.add<float>("fj_mass", 0);
-
+  
   // substructure
   data.add<float>("fj_tau1", 0);
   data.add<float>("fj_tau2", 0);
@@ -252,14 +276,89 @@ bool FatJetInfoFiller::fill(const pat::Jet& jet, size_t jetidx, const JetHelper&
   data.fill<int>("sample_use_pythia", sample_use_pythia_);
   data.fill<int>("sample_use_herwig", sample_use_herwig_);
   data.fill<int>("sample_use_madgraph", sample_use_madgraph_); // MG can be interfaced w/ either pythia or herwig
+  data.fill<int>("sample_isTopLH", sample_isTopLH_);
+  data.fill<int>("sample_isTopRH", sample_isTopRH_);
 
 
   // gen-matched particle (top/W/etc.)
-  data.fill<float>("fj_gen_pt", fjlabel.second ? fjlabel.second->pt() : -999);
-  data.fill<float>("fj_gen_eta", fjlabel.second ? fjlabel.second->eta() : -999);
-  data.fill<float>("fj_gen_mass", (fjlabel.first < FatJetMatching::QCD_all && fjlabel.second) ? fjlabel.second->mass() : 0);
-  data.fill<float>("fj_gen_deltaR", fjlabel.second ? reco::deltaR(jet, fjlabel.second->p4()) : 999);
-
+  data.fill<float>("fj_gen_pt", fjlabel.second.at(0) ? fjlabel.second.at(0)->pt() : -999);
+  data.fill<float>("fj_gen_eta", fjlabel.second.at(0) ? fjlabel.second.at(0)->eta() : -999);
+  data.fill<float>("fj_gen_phi", fjlabel.second.at(0) ? fjlabel.second.at(0)->phi() : -999);
+  data.fill<float>("fj_gen_mass", (fjlabel.first < FatJetMatching::QCD_all && fjlabel.second.at(0)) ? fjlabel.second.at(0)->mass() : 0);
+  data.fill<float>("fj_gen_deltaR", fjlabel.second.at(0) ? reco::deltaR(jet, fjlabel.second.at(0)->p4()) : 999);
+  
+  for(int idx=1; idx<std::min(4, (int)fjlabel.second.size()); idx++){
+    if(!fjlabel.second.at(idx)){
+      continue;
+    }
+    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_pt", fjlabel.second.at(idx)->pt());
+    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_eta", fjlabel.second.at(idx)->eta());
+    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_phi", fjlabel.second.at(idx)->phi());
+    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_mass", fjlabel.second.at(idx)->mass());
+  }
+  
+  if(fjlabel.first >= FatJetMatching::Top_bcq && fjlabel.first <= FatJetMatching::Top_btau && fjlabel.second.size() == 4){
+    for(int idx=0; idx<4; idx++){
+        if(!fjlabel.second.at(idx)){
+            throw std::logic_error("[FatJetInfoFiller::fill] Cannot compute cosThetaStar: product "+std::to_string(idx)+" is null.");
+        }
+    }
+    
+    int topType = (fjlabel.first >= FatJetMatching::Top_bcq && fjlabel.first <= FatJetMatching::Top_bq)? 0: 1;
+    
+    float cosThetaStar = commonutils::get_cosThetaStar(
+      fjlabel.second.at(0)->p4(),
+      fjlabel.second.at(1)->p4(),
+      fjlabel.second.at(2)->p4(),
+      fjlabel.second.at(3)->p4(),
+      topType
+    );
+    
+    data.fill<float>("fj_gen_cosThetaStar", cosThetaStar);
+    
+    if(topType == 0){
+        
+        auto dau1 = dynamic_cast<const reco::GenParticle*>(&(*fjlabel.second.at(2)));
+        auto dau2 = dynamic_cast<const reco::GenParticle*>(&(*fjlabel.second.at(3)));
+        
+        auto pdgid_dau2 = abs(std::abs(dau2->pdgId()));
+        
+        if(pdgid_dau2 == ParticleID::p_d || pdgid_dau2 == ParticleID::p_s){
+            
+            //printf("Swapping dau1 and dau2...\n");
+            //printf("  |-- Before swap: pt = %0.4f, %0.4f\n", fjlabel.second.at(2)->p4().pt(), fjlabel.second.at(3)->p4().pt());
+            
+            std::swap(dau1, dau2);
+            
+            //printf("  |-- Swapped    : pt = %0.4f, %0.4f\n", dau1->p4().pt(), dau2->p4().pt());
+            //printf("  |-- After swap : pt = %0.4f, %0.4f\n", fjlabel.second.at(2)->p4().pt(), fjlabel.second.at(3)->p4().pt());
+            //printf("  |__________\n");
+        }
+        
+        float cosThetaStar_d = commonutils::get_cosThetaStar(
+            fjlabel.second.at(0)->p4(),
+            fjlabel.second.at(1)->p4(),
+            dau1->p4(),
+            dau2->p4(),
+            1
+        );
+        
+        data.fill<float>("fj_gen_cosThetaStar_d", cosThetaStar_d);
+    }
+  }
+  
+  if(fjlabel.first >= FatJetMatching::Top_bele && fjlabel.first <= FatJetMatching::Top_btau && fjlabel.second.size() == 4){
+    for(int idx=0; idx<4; idx++){
+        if(!fjlabel.second.at(idx)){
+            throw std::logic_error("[FatJetInfoFiller::fill] Cannot compute zl: top decay product "+std::to_string(idx)+" is null.");
+        }
+    }
+    
+    float zl = fjlabel.second.at(2)->energy() / (fjlabel.second.at(1)->energy() + fjlabel.second.at(2)->energy());
+    
+    data.fill<float>("fj_gen_zl", zl);
+  }
+  
   // ----------------------------------
 
   // fatjet kinematics
@@ -338,7 +437,7 @@ bool FatJetInfoFiller::fill(const pat::Jet& jet, size_t jetidx, const JetHelper&
     auto pos = [](double x){ return x<0 ? 0 : x; };
     data.fill<float>("fj_genjet_sdmass", pos(sdgenjet->mass()));
     data.fill<float>("fj_genjet_sdmass_sqrt", std::sqrt(pos(sdgenjet->mass())));
-    data.fill<float>("fj_genjet_targetmass", (fjlabel.first < FatJetMatching::QCD_all && fjlabel.second) ? fjlabel.second->mass() : pos(sdgenjet->mass()) );
+    data.fill<float>("fj_genjet_targetmass", (fjlabel.first < FatJetMatching::QCD_all && fjlabel.second.at(0)) ? fjlabel.second.at(0)->mass() : pos(sdgenjet->mass()) );
     data.fill<float>("fj_genOverReco_sdmass", catchInfs(pos(sdgenjet->mass()) / pos(msd_uncorr), 1));
     data.fill<float>("fj_genOverReco_sdmass_null", catchInfs(pos(sdgenjet->mass()) / pos(msd_uncorr), 0));
   }

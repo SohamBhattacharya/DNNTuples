@@ -16,6 +16,9 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DeepNTuples/NtupleCommons/interface/NtupleBase.h"
 
+#include "DeepNTuples/NtupleCommons/interface/MVAVariableHelper.h"
+#include "DeepNTuples/NtupleCommons/interface/MVAVariableManager.h"
+
 namespace deepntuples {
 
   class PFCompleteFiller : public NtupleBase {
@@ -25,7 +28,7 @@ namespace deepntuples {
     virtual ~PFCompleteFiller() {}
 
     // get input parameters from the cfg file
-    virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& cc) override;
+    virtual void readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) override;
 
     // read event content or event setup for each event
     virtual void readEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -46,6 +49,22 @@ namespace deepntuples {
     edm::Handle<reco::VertexCompositePtrCandidateCollection> SVs;
 
     edm::ESHandle<TransientTrackBuilder> builder_;
+    
+    std::unique_ptr<MVAVariableHelper> mvaVarHelper_;
+    
+    edm::EDGetTokenT<std::vector <pat::Electron>> elToken_;
+    edm::Handle<std::vector <pat::Electron>> electronsH;
+    
+    edm::EDGetTokenT<std::vector <pat::Muon>> muToken_;
+    edm::Handle<std::vector <pat::Muon>> muonsH;
+    
+    std::unique_ptr<MVAVariableManager <pat::Electron>>  elMvaVarManager_;
+    std::unique_ptr<MVAVariableManager <pat::Muon>>      muMvaVarManager_;
+    
+    std::unordered_map<std::string, std::string> m_elVarBranchName_;
+    std::unordered_map<std::string, std::string> m_muVarBranchName_;
+    
+    std::vector <float> extraVariables_;
   };
 
 } /* namespace deepntuples */

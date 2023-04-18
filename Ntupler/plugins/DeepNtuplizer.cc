@@ -37,7 +37,8 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-
+  
+  ULong64_t event_count_file = 0;
   double jetR = -1;
 
   edm::EDGetTokenT<edm::View<pat::Jet>> jetToken_;
@@ -90,6 +91,7 @@ DeepNtuplizer::~DeepNtuplizer()
 
 // ------------ method called for each event  ------------
 void DeepNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  event_count_file++;
 
   for(auto *m : modules_){
     m->readEvent(iEvent, iSetup);
@@ -139,7 +141,9 @@ void DeepNtuplizer::beginJob() {
   fs->file().SetCompressionAlgorithm(ROOT::kLZ4);
   fs->file().SetCompressionLevel(4);
   treeWriter = new TreeWriter(fs->make<TTree>("tree" ,"tree"));
-
+  
+  treeWriter->book<ULong64_t>("event_count_file", event_count_file, "l");
+  
   for(auto *m : modules_)
     m->initBranches(treeWriter);
 
@@ -147,6 +151,8 @@ void DeepNtuplizer::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DeepNtuplizer::endJob() {
+    
+    //treeWriter->getTree()->GetBranch("event_count_file")->Fill();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

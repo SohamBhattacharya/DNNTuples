@@ -12,7 +12,7 @@
 
 namespace deepntuples {
 
-void JetInfoFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector && cc) {
+void JetInfoFiller::readConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&cc) {
   minPt_ = iConfig.getUntrackedParameter<double>("jetPtMin", 150);
   maxPt_ = iConfig.getUntrackedParameter<double>("jetPtMax", -1);
   maxAbsEta_ = iConfig.getUntrackedParameter<double>("jetAbsEtaMax", 2.4);

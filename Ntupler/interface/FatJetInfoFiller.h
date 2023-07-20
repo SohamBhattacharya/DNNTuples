@@ -15,6 +15,7 @@
 #include "DeepNTuples/NtupleCommons/interface/NtupleBase.h"
 #include "DeepNTuples/FatJetHelpers/interface/FatJetMatching.h"
 
+#include "Math/VectorUtil.h"
 
 namespace deepntuples {
 

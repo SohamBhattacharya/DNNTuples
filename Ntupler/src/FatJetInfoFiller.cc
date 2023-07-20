@@ -91,22 +91,42 @@ void FatJetInfoFiller::book() {
   data.add<float>("fj_gen_eta", 0);
   data.add<float>("fj_gen_phi", 0);
   data.add<float>("fj_gen_mass", 0);
-  data.add<float>("fj_gen_deltaR", 999);
+  data.add<float>("fj_gen_deltaR", 9999);
   
-  data.add<float>("fj_gen_dau1_pt", 0);
-  data.add<float>("fj_gen_dau1_eta", 0);
-  data.add<float>("fj_gen_dau1_phi", 0);
+  data.add<float>("fj_gen_n_dau", 0);
+  
+  data.add<float>("fj_gen_dau1_pt", -9999);
+  data.add<float>("fj_gen_dau1_eta", -9999);
+  data.add<float>("fj_gen_dau1_phi", -9999);
   data.add<float>("fj_gen_dau1_mass", 0);
   
-  data.add<float>("fj_gen_dau2_pt", 0);
-  data.add<float>("fj_gen_dau2_eta", 0);
-  data.add<float>("fj_gen_dau2_phi", 0);
+  data.add<float>("fj_gen_dau2_pt", -9999);
+  data.add<float>("fj_gen_dau2_eta", -9999);
+  data.add<float>("fj_gen_dau2_phi", -9999);
   data.add<float>("fj_gen_dau2_mass", 0);
   
-  data.add<float>("fj_gen_dau3_pt", 0);
-  data.add<float>("fj_gen_dau3_eta", 0);
-  data.add<float>("fj_gen_dau3_phi", 0);
+  data.add<float>("fj_gen_dau3_pt", -9999);
+  data.add<float>("fj_gen_dau3_eta", -9999);
+  data.add<float>("fj_gen_dau3_phi", -9999);
   data.add<float>("fj_gen_dau3_mass", 0);
+  
+  data.add<float>("fj_gen_dau1_motherRF_e", -9999);
+  data.add<float>("fj_gen_dau1_motherRF_px", -9999);
+  data.add<float>("fj_gen_dau1_motherRF_py", -9999);
+  data.add<float>("fj_gen_dau1_motherRF_pz", -9999);
+  data.add<float>("fj_gen_dau1_motherRF_pt", -9999);
+  
+  data.add<float>("fj_gen_dau2_motherRF_e", -9999);
+  data.add<float>("fj_gen_dau2_motherRF_px", -9999);
+  data.add<float>("fj_gen_dau2_motherRF_py", -9999);
+  data.add<float>("fj_gen_dau2_motherRF_pz", -9999);
+  data.add<float>("fj_gen_dau2_motherRF_pt", 0);
+  
+  data.add<float>("fj_gen_dau3_motherRF_e", -9999);
+  data.add<float>("fj_gen_dau3_motherRF_px", -9999);
+  data.add<float>("fj_gen_dau3_motherRF_py", -9999);
+  data.add<float>("fj_gen_dau3_motherRF_pz", -9999);
+  data.add<float>("fj_gen_dau3_motherRF_pt", 0);
   
   data.add<float>("fj_gen_cosThetaStar", -2);
   data.add<float>("fj_gen_cosThetaStar_d", -2);
@@ -221,10 +241,10 @@ bool FatJetInfoFiller::fill(const pat::Jet& jet, size_t jetidx, const JetHelper&
   {
     auto jmar = fjmatch_.flavorJMAR(&jet, *genParticlesHandle, 0.75*jetR_);
     data.fill<int>("fj_labelJMAR", jmar.first);
-    data.fill<float>("fjJMAR_gen_pt", jmar.second ? jmar.second->pt() : -999);
-    data.fill<float>("fjJMAR_gen_eta", jmar.second ? jmar.second->eta() : -999);
-    data.fill<float>("fjJMAR_gen_phi", jmar.second ? jmar.second->phi() : -999);
-    data.fill<int>("fjJMAR_gen_pdgid", jmar.second ? jmar.second->pdgId() : -999);
+    data.fill<float>("fjJMAR_gen_pt", jmar.second ? jmar.second->pt() : -9999);
+    data.fill<float>("fjJMAR_gen_eta", jmar.second ? jmar.second->eta() : -9999);
+    data.fill<float>("fjJMAR_gen_phi", jmar.second ? jmar.second->phi() : -9999);
+    data.fill<int>("fjJMAR_gen_pdgid", jmar.second ? jmar.second->pdgId() : -9999);
   }
 
   // ----------------------------------------------------------------
@@ -281,21 +301,39 @@ bool FatJetInfoFiller::fill(const pat::Jet& jet, size_t jetidx, const JetHelper&
 
 
   // gen-matched particle (top/W/etc.)
-  data.fill<float>("fj_gen_pt", fjlabel.second.at(0) ? fjlabel.second.at(0)->pt() : -999);
-  data.fill<float>("fj_gen_eta", fjlabel.second.at(0) ? fjlabel.second.at(0)->eta() : -999);
-  data.fill<float>("fj_gen_phi", fjlabel.second.at(0) ? fjlabel.second.at(0)->phi() : -999);
+  data.fill<float>("fj_gen_pt", fjlabel.second.at(0) ? fjlabel.second.at(0)->pt() : -9999);
+  data.fill<float>("fj_gen_eta", fjlabel.second.at(0) ? fjlabel.second.at(0)->eta() : -9999);
+  data.fill<float>("fj_gen_phi", fjlabel.second.at(0) ? fjlabel.second.at(0)->phi() : -9999);
   data.fill<float>("fj_gen_mass", (fjlabel.first < FatJetMatching::QCD_all && fjlabel.second.at(0)) ? fjlabel.second.at(0)->mass() : 0);
-  data.fill<float>("fj_gen_deltaR", fjlabel.second.at(0) ? reco::deltaR(jet, fjlabel.second.at(0)->p4()) : 999);
+  data.fill<float>("fj_gen_deltaR", fjlabel.second.at(0) ? reco::deltaR(jet, fjlabel.second.at(0)->p4()) : 9999);
+  
+  int ndau = 0;
+  auto boostVector = fjlabel.second.at(0) ? fjlabel.second.at(0)->p4().BoostToCM(): math::XYZVector(0, 0, 0);
   
   for(int idx=1; idx<std::min(4, (int)fjlabel.second.size()); idx++){
     if(!fjlabel.second.at(idx)){
       continue;
     }
-    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_pt", fjlabel.second.at(idx)->pt());
-    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_eta", fjlabel.second.at(idx)->eta());
-    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_phi", fjlabel.second.at(idx)->phi());
-    data.fill<float>(std::string("fj_gen_dau")+std::to_string(idx)+"_mass", fjlabel.second.at(idx)->mass());
+    
+    ndau++;
+    
+    data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_pt", fjlabel.second.at(idx)->pt());
+    data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_eta", fjlabel.second.at(idx)->eta());
+    data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_phi", fjlabel.second.at(idx)->phi());
+    data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_mass", fjlabel.second.at(idx)->mass());
+    
+    if(fjlabel.second.at(0)){
+        auto p4_dau_boosted = ROOT::Math::VectorUtil::boost(fjlabel.second.at(idx)->p4(), boostVector);
+        
+        data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_motherRF_e", p4_dau_boosted.energy());
+        data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_motherRF_px", p4_dau_boosted.px());
+        data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_motherRF_py", p4_dau_boosted.py());
+        data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_motherRF_pz", p4_dau_boosted.pz());
+        data.fill<float>("fj_gen_dau"+std::to_string(idx)+"_motherRF_pt", p4_dau_boosted.pt());
+    }
   }
+  
+  data.fill<float>("fj_gen_n_dau", ndau);
   
   if(fjlabel.first >= FatJetMatching::Top_bcq && fjlabel.first <= FatJetMatching::Top_btau && fjlabel.second.size() == 4){
     for(int idx=0; idx<4; idx++){
